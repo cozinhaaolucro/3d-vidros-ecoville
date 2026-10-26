@@ -1,88 +1,48 @@
-# Vidros Ecoville — configurador 3D
+# Vidros Ecoville — atualização R08
 
-Pacote para Miguel importar como um novo repositório GitHub e publicar na Vercel.
-Preparado em 26/10/2026 a partir dos arquivos locais atuais do visualizador.
-Site estático em HTML, CSS e JavaScript, sem dependências de aplicação e sem backend.
+Portal atual: https://3d.vidrosecoville.com.br/?p=t01
+Repositório: https://github.com/cozinhaaolucro/3d-vidros-ecoville
+Root Directory vigente: `Ecoville - Configurador 3D - GitHub e Vercel/ecoville-configurador-3d`
 
-## Subir no GitHub
+## Aplicar no projeto existente
 
-1. Extraia o ZIP e abra a pasta `ecoville-configurador-3d`.
-2. Crie um repositório na conta/organização da Ecoville; preferir privado.
-3. Suba o CONTEÚDO dessa pasta: `dist/`, `scripts/`, `package.json`, `vercel.json`, `.gitignore` e este guia.
-4. `package.json` e `vercel.json` devem ficar na raiz do repositório, não dentro de outra subpasta.
-5. Não copie `.git`, `.openai`, `.vercel`, credenciais, PDFs de clientes ou pastas empresariais para esse repositório.
+1. Extrair a pasta `ecoville-configurador-3d` deste ZIP.
+2. Copiar seu conteúdo para o Root Directory acima, substituindo os arquivos correspondentes. Preservar estrutura, projeto Vercel e DNS.
+3. Rodar `npm run check` (Node20+; nenhuma instalação de dependências necessária).
+4. Fazer commit e push no repositório existente. Preservar o vínculo Vercel e o domínio já configurados.
+5. Conferir o deploy Vercel e abrir o domínio em janela anônima, também em celular.
 
-## Publicar na Vercel
+Framework:Other. Build Command:`npm run check`. Output Directory:`dist`. O vercel.json mantém cache com revalidação; não criar segundo projeto.
 
-1. Importar o repositório e selecionar a equipe correta.
-2. Root Directory: raiz do repositório. Framework Preset: Other.
-3. Build Command: `npm run check`. Output Directory: `dist`.
-4. O `vercel.json` já define esses valores. Não há instalação de dependências nem variáveis de ambiente necessárias.
-5. Publicar, abrir a URL gerada em uma janela anônima e confirmar acesso sem login/proteção de visitantes em produção.
-6. O exemplo abre em `/?p=t01`. Preservar esse parâmetro em redirecionamentos e QR Codes.
+## O que muda
 
-Configuração oficial: https://vercel.com/docs/project-configuration
+- Perfis com volume/chanfros, apoios/arruelas, guia inferior e amortecedores. Roldanas convencionais continuam ocultas.
+- Puxador pequeno de verdade na altura padrão1,90m; barra chata no até-teto. `heightMode` registra o tipo. t01 continua1000×2390, até-teto.
+- O curso de correr para antes de o volume do puxador colidir com o vidrofixo, no pequeno e na barra.100%representa o limite ilustrativo; não é cálculo de passagem útil/corte.
+- Botões +/− para aproximar ferragens; Vista inicial e retorno5s restauram enquadramento, mantendo cores.
+- Uma única aparência de porcelanato quase branco fosco em parede ampla e piso amplo, com placas maiores e contraste reduzido, com juntas discretas; gerada no canvas, sem imagens externas/dependências.
+- Famílias sem geometria própria falham explicitamente. BT3/Flex/DuoSafe ainda exigem implementação específica.
 
-## Domínio próprio
+## O que permanece
 
-Endereço proposto: `3d.vidrosecoville.com.br` — confirmar com Jhulyene antes de configurar.
-Adicionar no projeto Vercel e cadastrar no provedor DNS os registros EXATOS fornecidos pela Vercel.
-Não alterar registros do domínio principal, MX ou outros serviços.
-Aguardar validação DNS e HTTPS; testar com dados móveis.
+`materials.js` e `pricing.js` são idênticos à produção consultada em26/10/2026. Nenhuma cor do vidro/acabamento ou preço foi alterado.42combinações com valor final e6amadeirado sob consulta; validade15/11/2026.
+Modelo t01 específico:1000×2390mm,8mm, até-teto, barra. Não reutilizar matriz para outras medidas. Custos/memória de cálculo ficam internos; não há API de cálculo ou ERP conectado.
 
-O endereço existente é https://ecoville-box-3d.vidrosecoville.chatgpt.site/?p=t01
-QR Codes já emitidos apontam para ele. Este pacote NÃO altera nem desativa esse endereço.
-Gerar novos QR Codes com o domínio próprio somente após homologação; redirecionar o antigo exige uma ação separada no ambiente original.
+## Verificação
 
-## Arquivos
+`npm run check` verifica recursos, sintaxe e matriz de preços, além de executar `scripts/qa-assemblies.cjs` (12montagens e1212posições, colisão do puxador, fixo imóvel e tipos distintos).
+QA de navegador da equipe:48seleções,42preços,6consultas; abertura/fechamento/retorno/zoom, diálogo e6viewports320–1366px sem overflow. Revisão visual dos6vidros contra mesmo ambiente.
+Desenho ilustrativo. Composição, fixações, limites de carga, medidas finais e ferragens reais exigem avaliação técnica do sistema e caso. O padrão de puxador não é certificação de capacidade estrutural.
 
-- `dist/index.html`: estrutura e textos da interface.
-- `dist/quote.css`: layout responsivo e cartão de preço.
-- `dist/scene.js`: geometria e desenho do modelo, materiais e interação visual.
-- `dist/materials.js`: amostras de vidro e acabamento, ilustrativas.
-- `dist/ui.js`: seleções, abertura, câmera e atualização do valor exibido.
-- `dist/projects.js`: medidas/modelo do exemplo.
-- `dist/pricing.js`: preços FINAIS em centavos, validade e consulta por combinação.
-- `scripts/check.mjs`: verificação portátil sem dependências.
+## Publicação e QR
 
-## Rodar e conferir localmente
+Após o push, confirmar que o domínio exibe ambiente neutro e botões +/− e que a porta para no puxador; testar no celular Wi-Fi/dados móveis. Preservar parâmetro ?p=t01. O PDF do orçamento t01 foi atualizado para o domínio próprio em26/10/2026; documentos/clientes não fazem parte deste repositório público. Próximos QR deste modelo usam domínio próprio; QR anteriores do Sites ainda apontam ao endereço histórico.
 
-Node.js 20 ou superior para `npm run check`.
-Para servir localmente, por exemplo: `python -m http.server 8000 --directory dist`.
-Abrir http://localhost:8000/?p=t01
-Não é necessário executar `npm install` para usar o código atual.
+Pacote somente de arquivos públicos, sem dados pessoais, custos internos ou credenciais.
 
-## Preços: escopo atual e evolução
+## R08 — apoio no piso
 
-O exemplo `t01` representa UM box de correr até o teto, 1.000 × 2.390 mm, vidro8mm, puxador barra e instalação.
-Há 42 combinações com preços finais; amadeirado permanece sob consulta.
-Os valores vigentes do exemplo vencem em15/11/2026; após a validade a interface deixa de exibir preço.
-Os preços foram calculados INTERNAMENTE e exportados; o navegador seleciona o resultado correspondente.
-Não há hoje API de cálculo, persistência, orçamento ilimitado nem integração automática ao ERP.
-Os custos internos e a memória de cálculo NÃO estão neste pacote e NÃO devem ir para `dist/` ou GitHub público.
-Para atualizar preços, receber da equipe uma nova matriz de valores finais revisados.
-Para cálculo em tempo real com custos privados, implementar futuramente serviço de backend autenticado ou geração privada; publicar apenas o resultado comercial.
-
-Para novos orçamentos: criar ID e versão próprios, medidas, validade e matriz; não sobrescrever `t01` com outro cliente.
-Atualmente a interface possui apenas o exemplo e uma matriz específica. A arquitetura multi-orçamento precisa ser implementada antes de uso em escala.
-Não presumir que trocar somente `projects.js` recalcula um orçamento: a proteção por medidas deve continuar ativa.
-Não extrapolar preço de modelo/medida/acabamento sem base aprovada.
-
-## Regra futura de modelos
-
-Confirmado: largura até1,00m e altura padrão1,90m podem oferecer correr e abrir.
-Essa regra ainda NÃO está integrada ao seletor de preços deste exemplo, que é até o teto.
-Não adicionar abrir ao exemplo até-teto por engano. Custos/compatibilidade de cada novo conjunto devem vir da equipe.
-
-## Homologação
-
-- Testar desktop, Android e iPhone, sem login, Wi-Fi e dados móveis.
-- Conferir vidro/acabamento, valores versus PDF, opções sob consulta e validade.
-- Abrir/fechar e girar; após5s de inatividade a câmera retorna, mantendo as cores.
-- Enquanto o mouse estiver no desenho ou o usuário arrastar, não interromper a interação.
-- Respeitar preferência de movimento reduzido.
-- Conferir layout a320/390px e alinhamento das colunas no desktop.
-- Abrir PDF no celular e TOCAR no QR clicável; escanear o QR do computador por câmera.
-- Confirmar que scripts/preços atualizam após deploy e que não aparecem erros no console.
-
-Este ZIP não cria conta, não configura DNS, não publica na Vercel e não envia mensagem a clientes.
+O produto gira somente sobre o eixo vertical, permanecendo em pé. Base e piso compartilham a mesma projeção e plano de contato; aproximação amplia o ambiente junto, preservando esse contato. Parede e piso não acompanham o giro. O revestimento se estende até as bordas da área visível, inclusive em janelas estreitas/altas. Sombra de contato acompanha a base real.
+Arraste horizontal ou botões para girar; +/− para aproximar. No teclado: esquerda/direita giram, acima/abaixo aproximam/afastam. Vista inicial e retorno automático permanecem.
+QA local desta revisão:32vistas em1366×768,800×1000,390×844 e320×568; laterais, traseira, zoom1/1,5/3,5 e oito gestos de arraste. Base completa no plano do piso; gesto vertical não inclina o box; piso contínuo na vista geral. Regressão:48seleções,42preços,6consultas, montagem/puxador e layout compacto.
+A R08 substitui a correção R07 que prendia apenas o ponto inferior e ainda permitia inclinar o produto. Fonte preparada para o mesmo projetoVercel; a implantação precisa ser verificada pelo commit/arquivos públicos.

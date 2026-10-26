@@ -23,3 +23,5 @@ if(BoxQuote.resolve({...item,width:1.2},{glass:'incolor',finish:'preto'})!==null
 const keys=Object.keys(BoxQuote.combinations||{});
 if(keys.length!==42)throw Error('Verificar matriz de combinações do exemplo');
 console.log('OK: recursos locais, sintaxe JS, 42 combinações e proteção por medidas.');
+
+execFileSync(process.execPath,[path.join(root,'scripts/qa-assemblies.cjs')],{stdio:'inherit',cwd:root});

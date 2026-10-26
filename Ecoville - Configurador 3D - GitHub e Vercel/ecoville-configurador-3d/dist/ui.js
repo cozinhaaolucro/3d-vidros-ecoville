@@ -5,7 +5,7 @@ const project=DEMO_PROJECTS[projectKey]||DEMO_PROJECTS.t01;
 family.replaceChildren(...project.items.map((item,i)=>new Option(item.label,String(i))));
 const active=()=>project.items[Number(family.value)||0];
 const HOME={yaw:.32,pitch:.10,opening:35};
-let yaw=HOME.yaw,pitch=HOME.pitch,drag=null,animation=0,materials=BoxMaterials.selection('incolor',active().finish),projected=[];
+let yaw=HOME.yaw,pitch=HOME.pitch,zoom=1,drag=null,animation=0,materials=BoxMaterials.selection('incolor',active().finish),projected=[];
 let idleTimer=0,homeAnimation=0,hovering=false;
 const ids=id=>document.getElementById(id);
 const money=cents=>(cents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
@@ -21,11 +21,11 @@ function cancelHome(){clearTimeout(idleTimer);cancelAnimationFrame(homeAnimation
 function returnHome(){
  if(hovering||drag||document.hidden)return;
  cancelAnimationFrame(animation);
- const start={yaw,pitch,opening:Number(opening.value)},t0=performance.now();
+ const start={yaw,pitch,zoom,opening:Number(opening.value)},t0=performance.now();
  const delta=((HOME.yaw-yaw+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
  function step(now){
   const t=matchMedia('(prefers-reduced-motion: reduce)').matches?1:Math.min(1,(now-t0)/900),e=t*t*(3-2*t);
-  yaw=start.yaw+delta*e;pitch=start.pitch+(HOME.pitch-start.pitch)*e;opening.value=Math.round(start.opening+(HOME.opening-start.opening)*e);draw();
+  yaw=start.yaw+delta*e;pitch=start.pitch+(HOME.pitch-start.pitch)*e;zoom=start.zoom+(1-start.zoom)*e;opening.value=Math.round(start.opening+(HOME.opening-start.opening)*e);draw();
   if(t<1)homeAnimation=requestAnimationFrame(step);else{yaw=HOME.yaw;pitch=HOME.pitch;draw();}
  }
  homeAnimation=requestAnimationFrame(step);
@@ -33,7 +33,8 @@ function returnHome(){
 function scheduleHome(){cancelHome();if(!hovering&&!drag)idleTimer=setTimeout(returnHome,5000);}
 function draw(){
  const r=canvas.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);
- projected=BoxScene.render(ctx,BoxScene.model(active().family,Number(opening.value)/100,materials,active()),yaw,pitch,r.width,r.height);
+ projected=BoxScene.render(ctx,BoxScene.model(active().family,Number(opening.value)/100,materials,active()),yaw,pitch,r.width,r.height,{zoom});
+ ids('zoom-out').disabled=zoom<=1;ids('zoom-in').disabled=zoom>=3.5;
  ids('toggle').textContent=Number(opening.value)>=95?'Fechar box':'Abrir totalmente';
 }
 function updateDescription(){
@@ -63,16 +64,17 @@ ids('restore-materials').onclick=()=>{materials=BoxMaterials.selection('incolor'
 function changeFamily(){
  const f=active().family;ids('title').textContent=active().label;materials=BoxMaterials.selection('incolor',active().finish);
 
- yaw=HOME.yaw;pitch=HOME.pitch;opening.value=HOME.opening;updateDescription();draw();
+ yaw=HOME.yaw;pitch=HOME.pitch;zoom=1;opening.value=HOME.opening;updateDescription();draw();
 }
 opening.addEventListener('input',()=>{cancelAnimationFrame(animation);draw();});family.addEventListener('change',()=>{cancelAnimationFrame(animation);changeFamily();});
 ids('toggle').onclick=()=>{cancelAnimationFrame(animation);const start=Number(opening.value),end=start>=95?0:100,t0=performance.now();function step(now){const t=Math.min(1,(now-t0)/650);opening.value=Math.round(start+(end-start)*(t*t*(3-2*t)));draw();if(t<1)animation=requestAnimationFrame(step);}if(matchMedia('(prefers-reduced-motion: reduce)').matches){opening.value=end;draw();}else animation=requestAnimationFrame(step);};
 ids('left').onclick=()=>{yaw-=.2;draw();};ids('right').onclick=()=>{yaw+=.2;draw();};ids('reset').onclick=()=>{cancelHome();hovering=false;returnHome();};
+ids('zoom-in').onclick=()=>{zoom=Math.min(3.5,zoom+.5);draw();};ids('zoom-out').onclick=()=>{zoom=Math.max(1,zoom-.5);draw();};
 canvas.addEventListener('pointerdown',e=>{if(e.isPrimary===false||e.button>0)return;drag={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false,id:e.pointerId};canvas.setPointerCapture(e.pointerId);});
-canvas.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const moved=drag.moved||Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>6;if(moved){yaw+=(e.clientX-drag.x)*.007;pitch=Math.max(-.2,Math.min(.8,pitch+(e.clientY-drag.y)*.004));drag.moved=true;draw();}drag.x=e.clientX;drag.y=e.clientY;});
+canvas.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const moved=drag.moved||Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>6;if(moved){yaw+=(e.clientX-drag.x)*.007;drag.moved=true;draw();}drag.x=e.clientX;drag.y=e.clientY;});
 canvas.addEventListener('pointerup',e=>{if(!drag||e.pointerId!==drag.id)return;const clicked=!drag.moved&&Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)<=6;drag=null;if(clicked){const r=canvas.getBoundingClientRect(),group=BoxScene.hitTest(projected,e.clientX-r.left,e.clientY-r.top);if(group)showPalette(group,true);}});
 canvas.addEventListener('pointercancel',()=>drag=null);canvas.addEventListener('lostpointercapture',()=>drag=null);
-canvas.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft')yaw-=.15;if(e.key==='ArrowRight')yaw+=.15;if(e.key==='ArrowUp')pitch=Math.min(.8,pitch+.08);if(e.key==='ArrowDown')pitch=Math.max(-.2,pitch-.08);draw();}});
+canvas.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft')yaw-=.15;if(e.key==='ArrowRight')yaw+=.15;if(e.key==='ArrowUp')zoom=Math.min(3.5,zoom+.5);if(e.key==='ArrowDown')zoom=Math.max(1,zoom-.5);draw();}});
 canvas.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hovering=true;cancelHome();}});
 canvas.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'){hovering=false;scheduleHome();}});
 canvas.addEventListener('pointerup',()=>scheduleHome());

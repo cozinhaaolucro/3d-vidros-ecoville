@@ -1,13 +1,14 @@
 {
   "preparado_em": "2026-10-26",
+  "revisao": "R08-base-no-piso",
   "arquivos_dist_sha256": {
-    "index.html": "78614b3f6adb63190ba50824b40181c39db6009d6a8008e103faa44a19d6b962",
+    "index.html": "8d2718e7d408ad0b4f3dc3a10aea0654dd4f939e9d158691d9e57db53b13ce42",
     "materials.js": "6f342e3e9970c9f6f09a002e4128cb0746017f02252e7e388b4b2baab97e2933",
     "pricing.js": "3cac6b117af4403dac4219ad25a5b75f196ff4c9214756e51af21202cd07458a",
-    "projects.js": "d680c2a49c065c48cca7c0264c67e373682ba88c09e90720a26a65896e0c5ecc",
-    "quote.css": "df3db9b15ec40701e9038c1da41b9287c35f941375f2adfcedf36cb2a1bf02d6",
-    "scene.js": "384e7aa80a51f4a821d8ede594d6850ad3f059340583943f50a81a5c1705c078",
-    "ui.js": "703b4ca1c4065a8ca929431ee39ad9be7c8bd9a083132f10afc26cc0ca4707b5"
+    "projects.js": "32dc4e742031069f3d7b09cc8e18fe2f974c4d275bb92585eb16052d7bb6396d",
+    "quote.css": "40b5db823c19ad2bf4b337b247c7d9087a36191a8e68ad1c6f6d017260085016",
+    "scene.js": "fc72ebfd28b29a43a0883425eee7149186395c648e2e3b141b3b2552cf89253d",
+    "ui.js": "6e84ac78851b1c167ed5104ffec573fe4385affb64f156c95bf7f0c6a3d58a62"
   },
-  "escopo": "Arquivos públicos do configurador, sem custos internos/credenciais/dados pessoais."
+  "escopo": "Somente arquivos publicos. Base no piso, cenario continuo, ferragens e limite da abertura. Materiais e valores preservados."
 }
