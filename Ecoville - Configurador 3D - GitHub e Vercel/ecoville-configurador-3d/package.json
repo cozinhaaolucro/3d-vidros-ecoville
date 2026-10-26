@@ -1,0 +1,12 @@
+{
+  "name": "ecoville-configurador-3d",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Configurador 3D de boxes com comparação de cores e valores finais.",
+  "scripts": {
+    "check": "node scripts/check.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
