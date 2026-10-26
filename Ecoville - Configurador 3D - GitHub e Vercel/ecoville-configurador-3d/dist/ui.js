@@ -1,18 +1,22 @@
 'use strict';
 const canvas=document.getElementById('scene'),ctx=canvas.getContext('2d'),family=document.getElementById('family'),opening=document.getElementById('opening');
 const projectKey=new URLSearchParams(location.search).get('p')||'t01';
-const project=DEMO_PROJECTS[projectKey]||DEMO_PROJECTS.t01;
-family.replaceChildren(...project.items.map((item,i)=>new Option(item.label,String(i))));
+const projectKnown=Object.hasOwn(DEMO_PROJECTS,projectKey),project=projectKnown?DEMO_PROJECTS[projectKey]:DEMO_PROJECTS.t01;
+family.replaceChildren(...project.items.map((item,i)=>new Option(item.optionLabel||item.label,String(i))));
+family.hidden=project.items.length<=1;
 const active=()=>project.items[Number(family.value)||0];
 const HOME={yaw:.32,pitch:.10,opening:35};
-let yaw=HOME.yaw,pitch=HOME.pitch,zoom=1,drag=null,animation=0,materials=BoxMaterials.selection('incolor',active().finish),projected=[];
+let yaw=HOME.yaw,pitch=HOME.pitch,zoom=1,drag=null,animation=0,materials=BoxMaterials.selection(active().glass||'incolor',active().finish),projected=[];
 let idleTimer=0,homeAnimation=0,hovering=false;
 const ids=id=>document.getElementById(id);
 const money=cents=>(cents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const activeTable=()=>projectKnown?BoxQuote.tableFor(active()):null;
+const validity=()=>{const value=activeTable()?.validUntil||active().validUntil||project.validUntil;if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return null;const date=new Date(value+'T12:00:00Z');return !Number.isNaN(date.getTime())&&date.toISOString().slice(0,10)===value?value:null;};
+const thickness=()=>active().thickness??activeTable()?.thickness??null;
 function updatePrice(){
- const quote=DEMO_PROJECTS[projectKey]?BoxQuote.resolve(active(),materials):null,g=BoxMaterials.glasses[materials.glass],f=BoxMaterials.finishes[materials.finish];
+ const quote=projectKnown?BoxQuote.resolve(active(),materials):null,g=BoxMaterials.glasses[materials.glass],f=BoxMaterials.finishes[materials.finish];
  ids('price-selection').textContent=(g.description||g.label)+' · '+f.label;
- const expired=new Date().toISOString().slice(0,10)>BoxQuote.validUntil;
+ const validUntil=validity(),expired=!validUntil||new Date().toISOString().slice(0,10)>validUntil;
  ids('price-available').hidden=!quote||expired;ids('price-pending').hidden=!!quote&&!expired;
  if(!quote||expired){for(const id of ['cash-price'])ids(id).textContent='';return;}
  ids('cash-price').textContent=money(quote.total);
@@ -40,10 +44,17 @@ function draw(){
 function updateDescription(){
  const item=active(),f=item.family,g=BoxMaterials.glasses[materials.glass],a=BoxMaterials.finishes[materials.finish];
  const dims=[item.width,...(f==='canto'?[item.depth]:[]),item.height].map(n=>Math.round(n*1000)).join(' × ');
- ids('spec').textContent=dims+' mm · '+(g.description||g.label)+' · 8 mm · '+a.label;
+ const glassThickness=thickness();
+ ids('spec').textContent=dims+' mm · '+(g.description||g.label)+(glassThickness?' · '+glassThickness+' mm':'')+' · '+a.label;
  ids('selected-materials').textContent=(g.description||g.label)+' · '+a.label;
  ids('glass-detail').textContent=g.kind==='mirror'?'Incolor com película espelhada. A reflexão e a transparência mudam conforme a iluminação dos dois lados.':g.kind==='frosted'?'Incolor com película jateada. Aparência fosca e difusão de luz; os detalhes através do vidro ficam suavizados.':'Vidro '+g.label.toLowerCase()+'. A tonalidade varia com a espessura, a luz e o ambiente.';
  document.querySelectorAll('[data-material-group]').forEach(b=>b.setAttribute('aria-pressed',String(materials[b.dataset.materialGroup]===b.dataset.materialValue)));
+ const validUntil=validity(),date=validUntil?validUntil.split('-').reverse().join('/'):null;
+ const modelDetail=document.querySelector('#details-dialog > p');
+ const measures=[item.width,...(f==='canto'?[item.depth]:[]),item.height].map(n=>Math.round(n*1000).toLocaleString('pt-BR')).join(' × ');
+ const mode=item.heightMode||(item===DEMO_PROJECTS.t01.items[0]?'ceiling':null);
+ const handle=mode==='ceiling'?'puxador barra':mode==='standard'||mode==='special'?'puxador pequeno':null;
+ modelDetail.textContent=item.label+' · '+measures+' mm. '+(g.description||'Vidro '+g.label.toLowerCase())+(glassThickness?' de '+glassThickness+' mm':'')+', acabamento '+a.label.toLowerCase()+(handle?', '+handle:'')+' e instalação. '+(date?'Valores válidos até '+date+'.':'Valor e validade sob consulta.');
  updatePrice();
 }
 function showPalette(group,focus=false){
@@ -60,10 +71,10 @@ for(const [group,collection] of [['glass',BoxMaterials.glasses],['finish',BoxMat
  }
  ids(group+'-tab').addEventListener('click',()=>showPalette(group));
 }
-ids('restore-materials').onclick=()=>{materials=BoxMaterials.selection('incolor',active().finish);updateDescription();draw();};
+ids('restore-materials').onclick=()=>{materials=BoxMaterials.selection(active().glass||'incolor',active().finish);updateDescription();draw();};
 function changeFamily(){
- const f=active().family;ids('title').textContent=active().label;materials=BoxMaterials.selection('incolor',active().finish);
-
+ cancelHome();cancelAnimationFrame(animation);drag=null;
+ ids('title').textContent=active().label;materials=BoxMaterials.selection(materials.glass,materials.finish);
  yaw=HOME.yaw;pitch=HOME.pitch;zoom=1;opening.value=HOME.opening;updateDescription();draw();
 }
 opening.addEventListener('input',()=>{cancelAnimationFrame(animation);draw();});family.addEventListener('change',()=>{cancelAnimationFrame(animation);changeFamily();});

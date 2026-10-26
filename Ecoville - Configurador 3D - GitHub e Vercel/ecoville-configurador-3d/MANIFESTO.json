@@ -1,14 +1,14 @@
 {
   "preparado_em": "2026-10-26",
-  "revisao": "R08-base-no-piso",
+  "revisao": "R09-alternativas-por-projeto",
   "arquivos_dist_sha256": {
-    "index.html": "8d2718e7d408ad0b4f3dc3a10aea0654dd4f939e9d158691d9e57db53b13ce42",
+    "index.html": "d98948e4f8c48be9ed00a8e925c15f5cf983733b68f2aeb27f35057537f96169",
     "materials.js": "6f342e3e9970c9f6f09a002e4128cb0746017f02252e7e388b4b2baab97e2933",
-    "pricing.js": "3cac6b117af4403dac4219ad25a5b75f196ff4c9214756e51af21202cd07458a",
-    "projects.js": "32dc4e742031069f3d7b09cc8e18fe2f974c4d275bb92585eb16052d7bb6396d",
-    "quote.css": "40b5db823c19ad2bf4b337b247c7d9087a36191a8e68ad1c6f6d017260085016",
-    "scene.js": "fc72ebfd28b29a43a0883425eee7149186395c648e2e3b141b3b2552cf89253d",
-    "ui.js": "6e84ac78851b1c167ed5104ffec573fe4385affb64f156c95bf7f0c6a3d58a62"
+    "pricing.js": "332b897d11f0e828a8f2649ee2c8fa93e533a193d8cd80cdaa5f72b8af2ca46c",
+    "projects.js": "24a1b851c8258288bf677ac4f33abbb10d13226051c73a2dd976160f3e502ff7",
+    "quote.css": "f03af03666cb1e4798afc0a3c404774152f99c4b618e0a191391ee9a1a583858",
+    "scene.js": "3c6af0a8c78b540925d80b8b164943cd9ae086d22af9ab85b4e53c676dc64701",
+    "ui.js": "c360e19c204c25edf18a267c9d3cb8cd2834a9ae45aeb77d96ef13c1b1a1c7cd"
   },
   "escopo": "Somente arquivos publicos. Base no piso, cenario continuo, ferragens e limite da abertura. Materiais e valores preservados."
 }

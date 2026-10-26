@@ -1,4 +1,4 @@
-# Vidros Ecoville — atualização R08
+# Vidros Ecoville — atualização R09
 
 Portal atual: https://3d.vidrosecoville.com.br/?p=t01
 Repositório: https://github.com/cozinhaaolucro/3d-vidros-ecoville
@@ -46,3 +46,9 @@ O produto gira somente sobre o eixo vertical, permanecendo em pé. Base e piso c
 Arraste horizontal ou botões para girar; +/− para aproximar. No teclado: esquerda/direita giram, acima/abaixo aproximam/afastam. Vista inicial e retorno automático permanecem.
 QA local desta revisão:32vistas em1366×768,800×1000,390×844 e320×568; laterais, traseira, zoom1/1,5/3,5 e oito gestos de arraste. Base completa no plano do piso; gesto vertical não inclina o box; piso contínuo na vista geral. Regressão:48seleções,42preços,6consultas, montagem/puxador e layout compacto.
 A R08 substitui a correção R07 que prendia apenas o ponto inferior e ainda permitia inclinar o produto. Fonte preparada para o mesmo projetoVercel; a implantação precisa ser verificada pelo commit/arquivos públicos.
+
+## R09 — projeto próprio com alternativas
+
+Matrizes de valores finais separadas por pricingId e geometria, com validade própria. O item só recebe preço da matriz correspondente; medida/família/altura/puxador/espessura/divisão diferentes invalidam o preço. t01 e seus42valores foram preservados.
+Novo projeto público b2610a:900×2500mm,8mm, até-teto, alternativas Abrir e F1. Abrir: porta ilustrativa550mm,3dobradiças,transpasse50mm e barra; sem trilho de correr superior. Seletor aparece somente quando há alternativas; dados do diálogo e validade são do projeto selecionado.12combinações cotadas paraAbrir e30paraF1; demais sob consulta, sem custos internos ou dados pessoais.
+QA local:96seleções entre2modelos, movimento/folha fixa/puxadores/3dobradiças,3viewports320/390/1366; regressãoMauro48seleções/6viewports e teste isolado multimatizes. QR de novo orçamento deve usar ?p=b2610a para este projeto, mantendo t01 para o anterior.

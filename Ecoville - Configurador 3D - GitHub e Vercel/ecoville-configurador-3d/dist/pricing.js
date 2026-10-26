@@ -1,8 +1,41 @@
 'use strict';
 // Somente preços finais. Custos e memória de cálculo ficam no ambiente interno.
-window.BoxQuote=Object.freeze({id:'box-1000x2390-v1',width:1,height:2.39,validUntil:'2026-11-15',
+(function(root){
+// Cada item novo declara pricingId. A chave aponta somente para a sua matriz final.
+// Medidas em metros; thickness em mm; total em centavos; validUntil em YYYY-MM-DD.
+// Schema: {id, family, width, height, heightMode, bar, thickness, validUntil,
+//          combinations:{'incolor.preto':{total:123400}}}. Canto também exige depth.
+// Opcionais depth/doorWidth/hingeCount/overlap devem coincidir no item e na matriz.
+// Matriz sem combinação cadastrada permanece sob consulta, sem estimativa por área.
+const quotes={
+"b2610a-abrir":{"width":0.9,"height":2.5,"heightMode":"ceiling","bar":true,"thickness":8,"overlap":0.05,"family":"abrir","doorWidth":0.55,"hingeCount":3,"id":"b2610a-abrir","validUntil":"2026-11-15","combinations":{"incolor.preto":{"total":132450},"incolor.branco":{"total":132450},"fume.preto":{"total":139550},"fume.branco":{"total":139550},"verde.preto":{"total":139550},"verde.branco":{"total":139550},"bronze.preto":{"total":139550},"bronze.branco":{"total":139550},"espelhada.preto":{"total":156200},"espelhada.branco":{"total":156200},"jateada.preto":{"total":156200},"jateada.branco":{"total":156200}}},
+"b2610a-f1":{"width":0.9,"height":2.5,"heightMode":"ceiling","bar":true,"thickness":8,"overlap":0.05,"family":"f1","id":"b2610a-f1","validUntil":"2026-11-15","combinations":{"incolor.preto":{"total":150400},"incolor.branco":{"total":150400},"incolor.fosco":{"total":150300},"incolor.marrom":{"total":151200},"incolor.cromado":{"total":200350},"fume.preto":{"total":157550},"fume.branco":{"total":157550},"fume.fosco":{"total":157400},"fume.marrom":{"total":158300},"fume.cromado":{"total":207450},"verde.preto":{"total":157550},"verde.branco":{"total":157550},"verde.fosco":{"total":157400},"verde.marrom":{"total":158300},"verde.cromado":{"total":207450},"bronze.preto":{"total":157550},"bronze.branco":{"total":157550},"bronze.fosco":{"total":157400},"bronze.marrom":{"total":158300},"bronze.cromado":{"total":207450},"espelhada.preto":{"total":174150},"espelhada.branco":{"total":174150},"espelhada.fosco":{"total":174050},"espelhada.marrom":{"total":174950},"espelhada.cromado":{"total":224100},"jateada.preto":{"total":174150},"jateada.branco":{"total":174150},"jateada.fosco":{"total":174050},"jateada.marrom":{"total":174950},"jateada.cromado":{"total":224100}}},
+// QUOTE_MATRICES: acrescentar aqui somente matrizes comerciais verificadas.
+'box-1000x2390-v1':{id:'box-1000x2390-v1',family:'f1',width:1,height:2.39,heightMode:'ceiling',bar:true,thickness:8,validUntil:'2026-11-15',
 combinations:{"incolor.preto":{"total":154600},"incolor.branco":{"total":154600},"incolor.cromado":{"total":206400},"incolor.rose":{"total":310650},"incolor.dourado":{"total":310650},"incolor.fosco":{"total":154450},"incolor.marrom":{"total":155500},"fume.preto":{"total":162150},"fume.branco":{"total":162150},"fume.cromado":{"total":213950},"fume.rose":{"total":318150},"fume.dourado":{"total":318150},"fume.fosco":{"total":161950},"fume.marrom":{"total":163050},"verde.preto":{"total":162150},"verde.branco":{"total":162150},"verde.cromado":{"total":213950},"verde.rose":{"total":318150},"verde.dourado":{"total":318150},"verde.fosco":{"total":161950},"verde.marrom":{"total":163050},"bronze.preto":{"total":162150},"bronze.branco":{"total":162150},"bronze.cromado":{"total":213950},"bronze.rose":{"total":318150},"bronze.dourado":{"total":318150},"bronze.fosco":{"total":161950},"bronze.marrom":{"total":163050},"espelhada.preto":{"total":179700},"espelhada.branco":{"total":179700},"espelhada.cromado":{"total":231500},"espelhada.rose":{"total":335750},"espelhada.dourado":{"total":335750},"espelhada.fosco":{"total":179550},"espelhada.marrom":{"total":180600},"jateada.preto":{"total":179700},"jateada.branco":{"total":179700},"jateada.cromado":{"total":231500},"jateada.rose":{"total":335750},"jateada.dourado":{"total":335750},"jateada.fosco":{"total":179550},"jateada.marrom":{"total":180600}},
-resolve(item,selection){
- if(item.width!==this.width||item.height!==this.height||item.family!=='f1'||!item.bar)return null;
- return this.combinations[selection.glass+'.'+selection.finish]||null;
-}});
+}};
+function freeze(value){if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;}
+freeze(quotes);
+const legacy=quotes['box-1000x2390-v1'];
+function tableFor(item){
+ if(!item||typeof item!=='object')return null;
+ // Compatibilidade restrita ao próprio item t01, nunca a outro item de medidas iguais.
+ const legacyItem=root.DEMO_PROJECTS&&root.DEMO_PROJECTS.t01&&root.DEMO_PROJECTS.t01.items[0];
+ const id=item.pricingId===undefined&&item===legacyItem?legacy.id:item.pricingId;
+ const table=typeof id==='string'&&Object.hasOwn(quotes,id)?quotes[id]:null;
+ if(!table||!['f1','abrir','canto'].includes(item.family)||!Number.isFinite(item.width)||item.width<=0||!Number.isFinite(item.height)||item.height<=0||typeof item.bar!=='boolean'||!['standard','ceiling','special'].includes(item.heightMode)||table.family!==item.family||table.width!==item.width||table.height!==item.height||table.bar!==item.bar||table.heightMode!==item.heightMode)return null;
+ for(const key of ['depth','doorWidth','hingeCount','overlap'])if((table[key]!==undefined||item[key]!==undefined)&&table[key]!==item[key])return null;
+ if(item.family==='canto'&&(!Number.isFinite(item.depth)||item.depth<=0))return null;
+ const thickness=item.thickness===undefined&&item===legacyItem?8:item.thickness;
+ if(!Number.isFinite(thickness)||thickness<=0||table.thickness!==thickness)return null;
+ return table;
+}
+function resolve(item,selection){
+ const table=tableFor(item);
+ if(!table||!selection||!table.combinations||typeof table.combinations!=='object')return null;
+ const key=selection.glass+'.'+selection.finish;
+ const value=Object.hasOwn(table.combinations,key)?table.combinations[key]:null;
+ return value&&Number.isSafeInteger(value.total)&&value.total>=0?value:null;
+}
+root.BoxQuote=Object.freeze({id:legacy.id,width:legacy.width,height:legacy.height,validUntil:legacy.validUntil,combinations:legacy.combinations,quotes,tableFor,resolve});
+})(window);

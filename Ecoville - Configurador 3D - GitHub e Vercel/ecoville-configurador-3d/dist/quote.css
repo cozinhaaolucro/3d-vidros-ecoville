@@ -10,3 +10,6 @@
 @media(min-width:761px) and (max-height:520px){header{height:35px}.brand{font-size:16px}.project-heading{padding-bottom:8px}h1{font-size:18px;margin-bottom:4px}#spec{font-size:10px}.choice-heading{display:none}.materials{padding:10px}.material-tabs button{padding:6px;font-size:11px}.material-summary{font-size:10px;margin:7px 0}.swatches{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.swatch{min-height:40px;font-size:9px;padding:4px;gap:3px}.chip{width:18px;height:18px}.restore{padding-top:8px;font-size:10px}.price-card{min-height:66px;padding:8px 12px}.price-amount{font-size:25px;margin-top:4px}.side-column{gap:8px}.opening-controls{padding:8px 12px}.primary{height:32px}.small-note{font-size:8px;margin:6px 0}}
 
 .view-tools button:disabled{opacity:.4;cursor:default}.view-tools #zoom-in,.view-tools #zoom-out{font-size:16px;line-height:1;min-width:32px;padding-left:8px;padding-right:8px}
+
+#family{max-width:100%;min-height:32px;margin:7px 0 0;padding:5px 11px;border:1px solid #c6d6ce;border-radius:8px;background:#fff;color:#16454a;font-size:12px;cursor:pointer}
+@media(max-width:760px){#family{min-height:28px;margin-top:5px;padding:3px 8px;font-size:11px}}

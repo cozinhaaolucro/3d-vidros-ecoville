@@ -32,7 +32,7 @@
   // This belongs to the illustrative assembly, not to fabrication or a nominal passage dimension.
   const handleHalfWidth=.016,stopGap=.006;
   const maxTravel=(span,inset,overlap)=>Math.max(0,span-inset-(span/2+overlap+handleHalfWidth+stopGap));
-  let motion=null;
+  let motion=null,openingFocus=null;
   const seal={kind:'solid',color:'#394748',edge:'#273334'},washer={kind:'solid',color:'#727f7b',edge:'#495754'};
   const pull=(x,y,z)=>{
    if(handleType==='flat-bar'){
@@ -53,13 +53,28 @@
    }
   };
   if(family==='abrir'){
-   const leaf=W*.50,angle=k*Math.PI/2;
-   pane([leaf,0],[W,0],H);pane([0,0],[leaf*Math.cos(angle),-leaf*Math.sin(angle)],H);
-   bar([0,0,0],[0,H,0]);bar([W,0,0],[W,H,0]);bar([leaf,0,0],[W,0,0]);
-   [0.33,H-.33].forEach(y=>line([-.012,y,0],[.06*Math.cos(angle),y,-.06*Math.sin(angle)],finish.color,9,finish));
-   // Giro uses the same handle assembly, rotated with its leaf around the wall hinge.
-   const first=faces.length;pull(leaf-.07,H*.47,.012);
-   for(const face of faces.slice(first)){face.points=face.points.map(([x,y,z])=>[x*Math.cos(angle)+z*Math.sin(angle),y,-x*Math.sin(angle)+z*Math.cos(angle)]);const [nx,ny,nz]=face.normal;face.normal=[nx*Math.cos(angle)+nz*Math.sin(angle),ny,-nx*Math.sin(angle)+nz*Math.cos(angle)];}
+   const leaf=config.doorWidth||W*.50,overlap=config.overlap||0,hingeCount=config.hingeCount||2,angle=k*Math.PI/2,pivotZ=.014;
+   if(!(leaf>overlap&&leaf<W)||![2,3].includes(hingeCount))throw new Error('Composição de abrir inválida');
+   pane([leaf-overlap,0],[W,0],H);pane([0,pivotZ],[leaf*Math.cos(angle),pivotZ-leaf*Math.sin(angle)],H);
+   // Opening assemblies use a lower guide, fixed-glass U and wall hinges,
+   // never the upper roller track of a sliding F1. Positions are illustrative.
+   bevel(-.012,-.008,-.014,W+.012,.010,.025,.002,finish,'opening-threshold');
+   bevel(W-.010,.010,-.014,W+.014,H,.014,.002,finish,'fixed-u');
+   bevel(leaf-overlap,.010,-.014,W,.025,.014,.002,finish,'fixed-u');
+   block(leaf-.007,.025,-.002,leaf+.007,H,.008,seal,'opening-seal');
+   const rotateNewFaces=first=>{for(const face of faces.slice(first)){
+    face.points=face.points.map(([x,y,z])=>[x*Math.cos(angle)+(z-pivotZ)*Math.sin(angle),y,pivotZ-x*Math.sin(angle)+(z-pivotZ)*Math.cos(angle)]);
+    const [nx,ny,nz]=face.normal;face.normal=[nx*Math.cos(angle)+nz*Math.sin(angle),ny,-nx*Math.sin(angle)+nz*Math.cos(angle)];
+   }};
+   const ys=hingeCount===3?[.25,H/2,H-.25]:[.25,H-.25];
+   for(const y of ys){
+    bevel(-.026,y-.028,-.026,.006,y+.028,.017,.004,finish,'hinge-wall');
+    extrude(1,y-.033,y+.033,Array.from({length:12},(_,i)=>[.005+Math.cos(i*Math.PI/6)*.008,pivotZ+Math.sin(i*Math.PI/6)*.008]),finish,'hinge-axis');
+    const first=faces.length;bevel(.008,y-.025,.005,.052,y+.025,.026,.004,finish,'hinge-leaf');rotateNewFaces(first);
+   }
+   const first=faces.length;pull(leaf-.06,H*.47,pivotZ);rotateNewFaces(first);
+   openingFocus=[(leaf-.06)*Math.cos(angle),H*.47,pivotZ-(leaf-.06)*Math.sin(angle)];
+   motion={angle,doorWidth:leaf,hingeCount,overlap};
   }else if(family==='f1'){
    const mid=W/2,travel=maxTravel(W,.065,.025),shift=k*travel;
    motion={travel,shift,fixedEdge:mid+.025,handleMin:W-.065-shift-handleHalfWidth,stopGap};
@@ -92,7 +107,7 @@
    for(const face of faces.slice(first)){face.points=face.points.map(([x,y,z])=>[W-z,y,x]);const [nx,ny,nz]=face.normal;face.normal=[-nz,ny,nx];}
   }
   const movingX=family==='f1'?W-.065-motion.shift:W/2;
-  return {family,width:W,depth:family==='canto'?D:0,height:H,faces,lines,selection:chosen,heightMode,handleType,motion,detailFocus:[movingX,H*.47,.04]};
+  return {family,width:W,depth:family==='canto'?D:0,height:H,faces,lines,selection:chosen,heightMode,handleType,motion,detailFocus:openingFocus||[movingX,H*.47,.04]};
  }
  function tint(hex,amount){
   const c=hex.replace('#',''),rgb=[0,2,4].map(i=>parseInt(c.slice(i,i+2),16));
