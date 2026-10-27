@@ -2,6 +2,7 @@
  'use strict';
  // Artistic previews, not manufacturer colorimetry or a compatibility/price table.
  const glasses={
+  protetora:{label:'Película protetora',description:'Incolor + película protetora',kind:'transparent',fill:'rgba(217,230,223,0.10)',edge:'#819a91',swatch:'linear-gradient(135deg,#fff,#e5eee8)'},
   incolor:{label:'Incolor',kind:'transparent',fill:'rgba(217,230,223,0.10)',edge:'#819a91',swatch:'linear-gradient(135deg,#fff,#e5eee8)'},
   fume:{label:'Fumê',kind:'transparent',fill:'rgba(57,57,57,0.43)',edge:'#626262',swatch:'#737373'},
   verde:{label:'Verde',kind:'transparent',fill:'rgba(74,128,93,0.30)',edge:'#5e8c70',swatch:'#7fa68a'},
