@@ -2,7 +2,7 @@
  'use strict';
  const Materials=typeof module!=='undefined'&&module.exports?require('./materials.js'):root.BoxMaterials;
  function model(family,opening,selection={},config={}){
-  if(!['f1','abrir','canto'].includes(family))throw new Error('Modelo de box sem geometria específica: '+family);
+  if(!['f1','abrir','canto','flex'].includes(family))throw new Error('Modelo de box sem geometria específica: '+family);
   const chosen=Materials.selection(selection.glass,selection.finish),glass=Materials.glasses[chosen.glass],finish=Materials.finishes[chosen.finish];
   const k=Math.max(0,Math.min(1,opening)), faces=[], lines=[];
   const line=(a,b,color='#b7c8c0',width=1,material=null)=>lines.push({a,b,color,width,material,group:material?'finish':null});
@@ -27,7 +27,7 @@
   };
   const disc=(x,y,z0,z1,r,material=finish,part='handle-mount')=>extrude(2,z0,z1,Array.from({length:20},(_,i)=>[x+Math.cos(i*Math.PI/10)*r,y+Math.sin(i*Math.PI/10)*r]),material,part);
   const W=config.width||(family==='abrir'?.91:family==='f1'?1.30:.95),H=config.height||1.90,D=config.depth||W;
-  const heightMode=config.heightMode||(H<=1.90?'standard':config.bar===true?'ceiling':'special'),handleType=heightMode==='ceiling'?'flat-bar':'small-knob';
+  const heightMode=config.heightMode||(H<=1.90?'standard':config.bar===true?'ceiling':'special'),handleType=heightMode==='ceiling'&&family!=='flex'?'flat-bar':'small-knob';
   // Projected clearance for a protruding pull: its inner grip must not cross the fixed pane.
   // This belongs to the illustrative assembly, not to fabrication or a nominal passage dimension.
   const handleHalfWidth=.016,stopGap=.006;
@@ -75,6 +75,44 @@
    const first=faces.length;pull(leaf-.06,H*.47,pivotZ);rotateNewFaces(first);
    openingFocus=[(leaf-.06)*Math.cos(angle),H*.47,pivotZ-(leaf-.06)*Math.sin(angle)];
    motion={angle,doorWidth:leaf,hingeCount,overlap};
+  }else if(family==='flex'){
+   // Illustrative bi-fold: equal leaves, wall pivot and articulated centre.
+   // No roller header/track from an F1 sliding assembly is reused.
+   const gap=.018,pivot=.018,L=(W-pivot-gap-.012)/2,angle=k*Math.PI*80/180;
+   if(!(L>.10))throw new Error('Largura Flex inválida');
+   const c=Math.cos(angle),sn=Math.sin(angle),joint=[pivot+L*c,L*sn];
+   const transform=(first,origin,a)=>{
+    const co=Math.cos(a),si=Math.sin(a);
+    for(const face of faces.slice(first)){
+     face.points=face.points.map(([x,y,z])=>[origin[0]+x*co-z*si,y,origin[1]+x*si+z*co]);
+     if(face.normal){const [nx,ny,nz]=face.normal;face.normal=[nx*co-nz*si,ny,nx*si+nz*co];}
+    }
+   };
+   const leaf=(origin,a,id,withPull)=>{
+    const first=faces.length,t=.008,y0=.018,y1=H-.018;
+    // 8 mm glass prism: two surfaces plus polished edges, using existing colours.
+    const P=[[0,y0,-t/2],[L,y0,-t/2],[L,y1,-t/2],[0,y1,-t/2],[0,y0,t/2],[L,y0,t/2],[L,y1,t/2],[0,y1,t/2]];
+    for(const ids of [[0,3,2,1],[4,5,6,7],[0,4,7,3],[1,2,6,5],[0,1,5,4],[3,7,6,2]])faces.push({points:ids.map(i=>P[i]),fill:glass.fill,stroke:glass.edge,material:glass,group:'glass',part:'flex-glass',leaf:id});
+    if(withPull)pull(L-.065,H*.47,.004);
+    transform(first,origin,a);
+   };
+   leaf([pivot,0],angle,0,false);
+   const origin2=[joint[0]+gap*c,joint[1]];
+   leaf(origin2,-angle,1,true);
+   // Slender wall U, bottom water threshold and discrete hinge bodies.
+   bevel(-.012,0,-.016,.012,H,.016,.002,finish,'flex-wall-u');
+   bevel(-.012,-.008,-.020,W+.012,.008,.020,.002,finish,'flex-threshold');
+   for(const y of [.25,H/2,H-.25]){
+    bevel(-.020,y-.030,-.025,.006,y+.030,.025,.003,finish,'flex-wall-hinge');
+    extrude(1,y-.033,y+.033,Array.from({length:12},(_,i)=>[pivot+Math.cos(i*Math.PI/6)*.009,Math.sin(i*Math.PI/6)*.009]),finish,'flex-pivot');
+    let first=faces.length;bevel(.006,y-.026,-.012,.052,y+.026,.024,.003,finish,'flex-hinge-leaf');transform(first,[pivot,0],angle);
+    // Two clamping plates follow their own glass; central pin bridges the gap.
+    first=faces.length;bevel(L-.047,y-.026,-.012,L+.006,y+.026,.024,.003,finish,'flex-centre-hinge');transform(first,[pivot,0],angle);
+    first=faces.length;bevel(-.006,y-.026,-.012,.047,y+.026,.024,.003,finish,'flex-centre-hinge');transform(first,origin2,-angle);
+    extrude(1,y-.030,y+.030,Array.from({length:12},(_,i)=>[joint[0]+gap*c/2+Math.cos(i*Math.PI/6)*.008,joint[1]+Math.sin(i*Math.PI/6)*.008]),finish,'flex-centre-pin');
+   }
+   openingFocus=[origin2[0]+(L-.065)*c,H*.47,origin2[1]-(L-.065)*sn];
+   motion={angle,leafWidth:L,gap,pivot:[pivot,0],joint,secondOrigin:origin2,freeEnd:[origin2[0]+L*c,origin2[1]-L*sn],maxAngle:Math.PI*80/180};
   }else if(family==='f1'){
    const mid=W/2,travel=maxTravel(W,.065,.025),shift=k*travel;
    motion={travel,shift,fixedEdge:mid+.025,handleMin:W-.065-shift-handleHalfWidth,stopGap};

@@ -24,6 +24,6 @@ for(const family of ['f1','canto'])for(const heightMode of ['standard','ceiling'
 assert.equal(scene.model('f1',0,selection,{height:1.9,heightMode:'standard',bar:true}).handleType,'small-knob','explicit standard overrides old flag');
 assert.equal(scene.model('f1',0,selection,{height:1.9,bar:true}).handleType,'small-knob','standard height ignores stale bar flag');
 assert.equal(scene.model('f1',0,selection,{height:2.39,heightMode:'ceiling'}).handleType,'flat-bar','ceiling needs bar even without legacy flag');
-for(const f of ['bt3','flex','duo-safe','unknown'])assert.throws(()=>scene.model(f,0),/sem geometria específica/);
+for(const f of ['bt3','duo-safe','unknown'])assert.throws(()=>scene.model(f,0),/sem geometria específica/);
 // Summary stays in memory; no runtime files are written.
 console.log('PASS:12 assemblies,1212 opening positions; pull clearance, fixed panes, distinct knob/bar, unsupported models rejected.');
