@@ -2,7 +2,7 @@
  'use strict';
  const Materials=typeof module!=='undefined'&&module.exports?require('./materials.js'):root.BoxMaterials;
  function model(family,opening,selection={},config={}){
-  if(!['f1','abrir','canto','flex'].includes(family))throw new Error('Modelo de box sem geometria específica: '+family);
+  if(!['f1','abrir','canto','flex','bt3','duo-safe'].includes(family))throw new Error('Modelo de box sem geometria específica: '+family);
   const chosen=Materials.selection(selection.glass,selection.finish),glass=Materials.glasses[chosen.glass],finish=Materials.finishes[chosen.finish];
   const k=Math.max(0,Math.min(1,opening)), faces=[], lines=[];
   const line=(a,b,color='#b7c8c0',width=1,material=null)=>lines.push({a,b,color,width,material,group:material?'finish':null});
@@ -27,7 +27,7 @@
   };
   const disc=(x,y,z0,z1,r,material=finish,part='handle-mount')=>extrude(2,z0,z1,Array.from({length:20},(_,i)=>[x+Math.cos(i*Math.PI/10)*r,y+Math.sin(i*Math.PI/10)*r]),material,part);
   const W=config.width||(family==='abrir'?.91:family==='f1'?1.30:.95),H=config.height||1.90,D=config.depth||W;
-  const heightMode=config.heightMode||(H<=1.90?'standard':config.bar===true?'ceiling':'special'),handleType=heightMode==='ceiling'&&family!=='flex'?'flat-bar':'small-knob';
+  const heightMode=config.heightMode||(H<=1.90?'standard':config.bar===true?'ceiling':'special'),handleType=family==='duo-safe'?'pressure-profile':heightMode==='ceiling'&&family!=='flex'?'flat-bar':'small-knob';
   // Projected clearance for a protruding pull: its inner grip must not cross the fixed pane.
   // This belongs to the illustrative assembly, not to fabrication or a nominal passage dimension.
   const handleHalfWidth=.016,stopGap=.006;
@@ -113,6 +113,35 @@
    }
    openingFocus=[origin2[0]+(L-.065)*c,H*.47,origin2[1]-(L-.065)*sn];
    motion={angle,leafWidth:L,gap,pivot:[pivot,0],joint,secondOrigin:origin2,freeEnd:[origin2[0]+L*c,origin2[1]-L*sn],maxAngle:Math.PI*80/180};
+  }else if(family==='bt3'||family==='duo-safe'){
+   // Commercial illustration, not cutting dimensions. BT3: 1 fixed + 2 mobile.
+   // Duo Safe manual: two mobile leaves, pressure pull profiles, central nylon guide.
+   const duo=family==='duo-safe',count=duo?2:3,overlap=.025,span=W/count+overlap;
+   const zs=duo?[0,.038]:[0,.035,.070],inset=.065,clear=.016+.008;
+   const travel=duo?Math.max(0,W-span-inset-clear):Math.max(0,W-span-inset-clear);
+   const shift=k*travel,starts=duo?[0,W-span-shift]:[0,(W-span)/2-shift/2,W-span-shift];
+   // Each mobile leaf remains inside the frame and on a distinct runner plane.
+   starts.forEach((x,i)=>pane([x,zs[i]],[x+span,zs[i]],H));
+   bevel(-.014,H-.065,-.026,W+.014,H+.018,duo?.084:.118,.004,finish,duo?'duo-header':'bt3-header');
+   bevel(-.014,-.008,-.018,W+.014,.016,duo?.080:.114,.002,finish,duo?'duo-bottom-track':'bt3-bottom-track');
+   for(const x of [0,W])bevel(x-.010,.016,-.018,x+.010,H-.065,duo?.080:.114,.002,finish,'wall-channel');
+   for(const z of zs)block(0,.016,z-.003,W,.020,z+.003,seal,'runner-groove');
+   const headerZ=duo?.084:.118;
+   for(const z of [-.026,headerZ-.006])bevel(-.014,H-.065,z,W+.014,H-.018,z+.006,.001,finish,'track-cover');
+   if(duo){
+    // Native pressure handles at both outer closing edges; no drilled bar handle.
+    for(const [i,x] of [[0,starts[0]+.018],[1,starts[1]+span-.018]]){
+     bevel(x-.010,.025,zs[i]-.010,x+.010,H-.070,zs[i]+.013,.002,finish,'duo-pressure-pull');
+     bevel(x-.010,H*.40,zs[i]+.012,x+.020,H*.57,zs[i]+.030,.002,finish,'duo-pressure-grip');
+    }
+    for(const z of [.010,.056])bevel(W/2-.020,.020,z,W/2+.020,.042,z+.012,.002,seal,'nylon-guide');
+    for(const x of [.012,W-.024])for(const z of [.012,.050])bevel(x,.08,z,x+.012,.10,z+.014,.002,seal,'closing-buffer');
+   }else{
+    pull(starts[2]+span-inset,H*.47,zs[2]);
+    for(const z of [.012,.047,.082])bevel(span-.020,.020,z,span+.020,.040,z+.010,.002,seal,'nylon-guide');
+   }
+   motion={travel,shift,starts,span,runnerPlanes:zs,fixedLeaves:duo?0:1,mobileLeaves:2,openingSide:'right',illustrative:true};
+   openingFocus=[duo?starts[1]+span-.018:starts[2]+span-inset,H*.47,zs[zs.length-1]];
   }else if(family==='f1'){
    const mid=W/2,travel=maxTravel(W,.065,.025),shift=k*travel;
    motion={travel,shift,fixedEdge:mid+.025,handleMin:W-.065-shift-handleHalfWidth,stopGap};

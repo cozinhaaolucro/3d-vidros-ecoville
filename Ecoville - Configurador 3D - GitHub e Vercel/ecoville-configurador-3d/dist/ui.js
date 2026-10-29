@@ -52,12 +52,12 @@ function updateDescription(){
  ids('spec').textContent=dims+' mm · '+(g.description||g.label)+(glassThickness?' · '+glassThickness+' mm':'')+' · '+a.label;
  ids('selected-materials').textContent=(g.description||g.label)+' · '+a.label;
  ids('glass-detail').textContent=g.kind==='mirror'?'Incolor com película espelhada. A reflexão e a transparência mudam conforme a iluminação dos dois lados.':g.kind==='frosted'?'Incolor com película jateada. Aparência fosca e difusão de luz; os detalhes através do vidro ficam suavizados.':'Vidro '+g.label.toLowerCase()+'. A tonalidade varia com a espessura, a luz e o ambiente.';
- document.querySelectorAll('[data-material-group]').forEach(b=>b.setAttribute('aria-pressed',String(materials[b.dataset.materialGroup]===b.dataset.materialValue)));
+ document.querySelectorAll('[data-material-group]').forEach(b=>{b.setAttribute('aria-pressed',String(materials[b.dataset.materialGroup]===b.dataset.materialValue));b.hidden=b.dataset.materialGroup==='finish'&&(item.unavailableFinishes||[]).includes(b.dataset.materialValue);});
  const validUntil=validity(),date=validUntil?validUntil.split('-').reverse().join('/'):null;
  const modelDetail=document.querySelector('#details-dialog > p');
  const measures=[item.width,...(f==='canto'?[item.depth]:[]),item.height].map(n=>Math.round(n*1000).toLocaleString('pt-BR')).join(' × ');
  const mode=item.heightMode||(item===DEMO_PROJECTS.t01.items[0]?'ceiling':null);
- const handle=mode==='ceiling'?'puxador barra':mode==='standard'||mode==='special'?'puxador pequeno':null;
+ const handle=f==='flex'?'puxador pequeno':f==='duo-safe'?'perfis-puxadores':mode==='ceiling'?'puxador barra':mode==='standard'||mode==='special'?'puxador pequeno':null;
  modelDetail.textContent=item.label+' · '+measures+' mm. '+(g.description||'Vidro '+g.label.toLowerCase())+(glassThickness?' de '+glassThickness+' mm':'')+', acabamento '+a.label.toLowerCase()+(handle?', '+handle:'')+' e instalação. '+(date?'Valores válidos até '+date+'.':'Valor e validade sob consulta.');
  updatePrice();
 }
@@ -78,7 +78,7 @@ for(const [group,collection] of [['glass',BoxMaterials.glasses],['finish',BoxMat
 ids('restore-materials').onclick=()=>{materials=BoxMaterials.selection(active().glass||'incolor',active().finish);updateDescription();draw();};
 function changeFamily(){
  cancelHome();cancelAnimationFrame(animation);drag=null;
- ids('title').textContent=active().label;materials=BoxMaterials.selection(materials.glass,materials.finish);
+ ids('title').textContent=active().label;materials=BoxMaterials.selection(materials.glass,(active().unavailableFinishes||[]).includes(materials.finish)?active().finish:materials.finish);
  yaw=HOME.yaw;pitch=HOME.pitch;zoom=1;opening.value=HOME.opening;updateDescription();draw();
 }
 opening.addEventListener('input',()=>{cancelAnimationFrame(animation);draw();});family.addEventListener('change',()=>{cancelAnimationFrame(animation);changeFamily();});
