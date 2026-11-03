@@ -16,7 +16,7 @@
 
 // Matriz sem combinação cadastrada permanece sob consulta, sem estimativa por área.
 
-const quotes={
+const quotes={"m0311a":{"label": "Box Flex articulado", "family": "flex", "width": 0.84, "height": 1.9, "heightMode": "standard", "bar": false, "thickness": 8, "glass": "incolor", "finish": "cromado", "pricingId": "m0311a", "id": "m0311a", "validUntil": "2026-11-23", "combinations": {"incolor.cromado": {"total": 212900}}},
 "p0311a":{"family":"porta4","width":2.4,"height":2.1,"heightMode":"special","bar":true,"thickness":8,"id":"p0311a","validUntil":"2026-11-23","combinations":{"incolor.preto":{"total":276000},"incolor.branco":{"total":276000}}},
 
 "b0311a":{"family":"canto","width":0.975,"depth":0.935,"height":1.9,"heightMode":"standard","bar":false,"thickness":8,"id":"b0311a","validUntil":"2026-11-23","combinations":{"incolor.preto":{"total":140550},"incolor.branco":{"total":140550},"incolor.fosco":{"total":140300},"incolor.marrom":{"total":141800},"incolor.cromado":{"total":168850},"fume.preto":{"total":154150},"fume.branco":{"total":154150},"fume.fosco":{"total":153950},"fume.marrom":{"total":155400},"fume.cromado":{"total":182500},"espelhada.preto":{"total":179500},"espelhada.branco":{"total":179500},"espelhada.fosco":{"total":179250},"espelhada.marrom":{"total":180750},"espelhada.cromado":{"total":207800},"jateada.preto":{"total":179500},"jateada.branco":{"total":179500},"jateada.fosco":{"total":179250},"jateada.marrom":{"total":180750},"jateada.cromado":{"total":207800},"protetora.preto":{"total":179500},"protetora.branco":{"total":179500},"protetora.fosco":{"total":179250},"protetora.marrom":{"total":180750},"protetora.cromado":{"total":207800}}},
