@@ -136,7 +136,7 @@
     // 8 mm glass prism: two surfaces plus polished edges, using existing colours.
     const P=[[0,y0,-t/2],[L,y0,-t/2],[L,y1,-t/2],[0,y1,-t/2],[0,y0,t/2],[L,y0,t/2],[L,y1,t/2],[0,y1,t/2]];
     for(const ids of [[0,3,2,1],[4,5,6,7],[0,4,7,3],[1,2,6,5],[0,1,5,4],[3,7,6,2]])faces.push({points:ids.map(i=>P[i]),fill:glass.fill,stroke:glass.edge,material:glass,group:'glass',part:'flex-glass',leaf:id});
-    if(withPull)pull(L-.065,H*.47,.004);
+    if(config.hardwareStyle==='flex-round'){const x=id===0?L-.065:.065,y=H*.47;disc(x,y,-.018,.022,.012,finish,'flex-round-knob-neck');disc(x,y,.020,.042,.020,finish,'flex-round-knob');disc(x,y,-.042,-.018,.020,finish,'flex-round-knob');}else if(withPull)pull(L-.065,H*.47,.004);
     transform(first,origin,a);
    };
    leaf([pivot,0],angle,0,false);
@@ -145,6 +145,16 @@
    // Slender wall U, bottom water threshold and discrete hinge bodies.
    bevel(-.012,0,-.016,.012,H,.016,.002,finish,'flex-wall-u');
    bevel(-.012,-.008,-.020,W+.012,.008,.020,.002,finish,'flex-threshold');
+   if(config.hardwareStyle==='flex-round'){
+    const oval=(x,y,rx,ry,part)=>extrude(2,-.014,.018,Array.from({length:24},(_,i)=>[x+Math.cos(i*Math.PI/12)*rx,y+Math.sin(i*Math.PI/12)*ry]),finish,part);
+    for(const y of [H*.18,H*.82]){
+     bevel(-.022,y-.019,-.018,.012,y+.019,.024,.004,finish,'flex-wall-mount');
+     let first=faces.length;oval(.045,y,.040,.026,'flex-round-wall-hinge');transform(first,[pivot,0],angle);
+     first=faces.length;oval(L-.028,y,.037,.025,'flex-round-centre-hinge');transform(first,[pivot,0],angle);
+     first=faces.length;oval(.028,y,.037,.025,'flex-round-centre-hinge');transform(first,origin2,-angle);
+     extrude(1,y-.023,y+.023,Array.from({length:16},(_,i)=>[joint[0]+gap*c/2+Math.cos(i*Math.PI/8)*.009,joint[1]+Math.sin(i*Math.PI/8)*.009]),finish,'flex-centre-pin');
+    }
+   }else
    for(const y of [.25,H/2,H-.25]){
     bevel(-.020,y-.030,-.025,.006,y+.030,.025,.003,finish,'flex-wall-hinge');
     extrude(1,y-.033,y+.033,Array.from({length:12},(_,i)=>[pivot+Math.cos(i*Math.PI/6)*.009,Math.sin(i*Math.PI/6)*.009]),finish,'flex-pivot');
