@@ -2,7 +2,7 @@
  'use strict';
  const Materials=typeof module!=='undefined'&&module.exports?require('./materials.js'):root.BoxMaterials;
  function model(family,opening,selection={},config={}){
-  if(!['f1','abrir','canto','flex','bt3','duo-safe'].includes(family))throw new Error('Modelo de box sem geometria específica: '+family);
+  if(!['f1','abrir','canto','flex','bt3','duo-safe','porta4'].includes(family))throw new Error('Modelo de box sem geometria específica: '+family);
   const chosen=Materials.selection(selection.glass,selection.finish),glass=Materials.glasses[chosen.glass],finish=Materials.finishes[chosen.finish];
   const k=Math.max(0,Math.min(1,opening)), faces=[], lines=[];
   const line=(a,b,color='#b7c8c0',width=1,material=null)=>lines.push({a,b,color,width,material,group:material?'finish':null});
@@ -27,7 +27,7 @@
   };
   const disc=(x,y,z0,z1,r,material=finish,part='handle-mount')=>extrude(2,z0,z1,Array.from({length:20},(_,i)=>[x+Math.cos(i*Math.PI/10)*r,y+Math.sin(i*Math.PI/10)*r]),material,part);
   const W=config.width||(family==='abrir'?.91:family==='f1'?1.30:.95),H=config.height||1.90,D=config.depth||W;
-  const heightMode=config.heightMode||(H<=1.90?'standard':config.bar===true?'ceiling':'special'),handleType=family==='duo-safe'?'pressure-profile':heightMode==='ceiling'&&family!=='flex'?'flat-bar':'small-knob';
+  const heightMode=config.heightMode||(H<=1.90?'standard':config.bar===true?'ceiling':'special'),handleType=family==='porta4'?'door-bar':family==='duo-safe'?'pressure-profile':heightMode==='ceiling'&&family!=='flex'?'flat-bar':'small-knob';
   // Projected clearance for a protruding pull: its inner grip must not cross the fixed pane.
   // This belongs to the illustrative assembly, not to fabrication or a nominal passage dimension.
   const handleHalfWidth=.016,stopGap=.006;
@@ -52,7 +52,50 @@
     bevel(x-.016,y-.016,z-.047,x+.016,y+.016,z-.020,.006,finish,'handle-knob');
    }
   };
-  if(family==='abrir'){
+  if(family==='porta4'){
+   // Four-leaf tempered-glass door: outside panels fixed, centre pair sliding.
+   // Dimensions are illustrative. No complete sash frames are added to glass.
+   const quarter=W/4,overlap=.026,span=quarter+overlap,centralGap=.008,zFixed=.004,zMobile=.046;
+   const inset=.066,handleHalf=.017,stop=.012,travel=Math.max(0,quarter-overlap-inset-handleHalf-stop),shift=k*travel;
+   const starts=[0,quarter-overlap-shift,W/2+centralGap/2+shift,W-quarter-overlap];
+   const ends=[quarter+overlap,W/2-centralGap/2-shift,W-quarter+overlap+shift,W];
+   const glassLeaf=(x0,x1,z,id,mobile)=>{
+    const t=.008,y0=.018,y1=H-.065;
+    const P=[[x0,y0,z-t/2],[x1,y0,z-t/2],[x1,y1,z-t/2],[x0,y1,z-t/2],[x0,y0,z+t/2],[x1,y0,z+t/2],[x1,y1,z+t/2],[x0,y1,z+t/2]];
+    for(const ids of [[0,3,2,1],[4,5,6,7],[0,4,7,3],[1,2,6,5],[0,1,5,4],[3,7,6,2]])faces.push({points:ids.map(i=>P[i]),fill:glass.fill,stroke:glass.edge,material:glass,group:'glass',part:'door-glass',leaf:id,mobile});
+   };
+   starts.forEach((x,i)=>glassLeaf(x,ends[i],i===0||i===3?zFixed:zMobile,i,i===1||i===2));
+   // Wide top runner with removable cover; two bottom runners, slender side U.
+   bevel(-.016,H-.073,-.022,W+.016,H+.016,.096,.004,finish,'door-header');
+   bevel(-.016,H-.073,.088,W+.016,H-.024,.098,.002,finish,'door-track-cover');
+   bevel(-.016,-.010,-.020,W+.016,.018,.094,.002,finish,'door-bottom-track');
+   for(const z of [zFixed,zMobile]){
+    block(0,.018,z-.003,W,.023,z+.003,seal,'door-runner');
+    block(0,H-.075,z-.005,W,H-.069,z+.005,seal,'door-upper-runner');
+   }
+   for(const x of [0,W])bevel(x-.010,.018,-.014,x+.010,H-.073,.064,.002,finish,'door-wall-u');
+   for(const i of [0,3])for(const x of [starts[i]+.025,ends[i]-.025])bevel(x-.012,H-.086,-.006,x+.012,H-.045,.018,.002,finish,'door-fixed-clip');
+   // Each handle and lock move with its centre glass leaf.
+   const handleXs=[ends[1]-inset,starts[2]+inset];
+   for(const [n,x] of handleXs.entries()){
+    const y=H*.48;
+    for(const yy of [y-.175,y+.175]){
+     disc(x,yy,zMobile-.005,zMobile+.005,.013,washer,'door-handle-gasket');
+     bevel(x-.011,yy-.012,zMobile+.005,x+.011,yy+.012,zMobile+.045,.003,finish,'door-handle-support');
+    }
+    bevel(x-.011,y-.20,zMobile+.041,x+.011,y+.20,zMobile+.065,.003,finish,'door-handle-bar');
+    bevel(x-.009,y-.20,zMobile-.043,x+.009,y+.20,zMobile-.021,.003,finish,'door-handle-inner');
+    const edge=n===0?ends[1]-.020:starts[2]+.020;
+    bevel(edge-.021,y-.050,zMobile-.012,edge+.021,y+.050,zMobile+.027,.005,finish,n===0?'door-lock-body':'door-lock-counter');
+    if(n===0){
+     disc(edge,y,zMobile+.027,zMobile+.031,.009,washer,'door-lock-cylinder');
+     bevel(edge-.0015,y-.005,zMobile+.031,edge+.0015,y+.005,zMobile+.033,.0005,seal,'door-key-slot');
+    }
+   }
+   for(const x of [quarter-.012,W-quarter-.012])bevel(x,.018,.024,x+.024,.041,.065,.002,seal,'door-nylon-guide');
+   motion={travel,shift,starts,ends,runnerPlanes:[zFixed,zMobile],fixedLeaves:2,mobileLeaves:2,openingSide:'centre',handleXs,clearance:stop,illustrative:true};
+   openingFocus=[W/2,H*.48,zMobile+.05];
+  }else if(family==='abrir'){
    const leaf=config.doorWidth||W*.50,overlap=config.overlap||0,hingeCount=config.hingeCount||2,angle=k*Math.PI/2,pivotZ=.014;
    if(!(leaf>overlap&&leaf<W)||![2,3].includes(hingeCount))throw new Error('Composição de abrir inválida');
    pane([leaf-overlap,0],[W,0],H);pane([0,pivotZ],[leaf*Math.cos(angle),pivotZ-leaf*Math.sin(angle)],H);
@@ -218,7 +261,7 @@
  function render(ctx,m,yaw,pitch,width,height,options={}){
   const zoom=Math.max(1,Math.min(3.5,options.zoom||1)),detail=Math.min(1,(zoom-1)/1.5),focus=m.detailFocus;
   const center=[m.width/2+(focus[0]-m.width/2)*detail,m.height/2+(focus[1]-m.height/2)*detail,(m.depth||0)/2];
-  const baseFactor=Math.min(1.30/m.width,2.30/m.height);
+  const baseFactor=Math.min(1.30/m.width,2.30/m.height)*(m.family==='porta4'?(width<600?1.45:1.60):1);
   const projector=(factor,origin,angle,elevation)=>p=>projection([(p[0]-origin[0])*factor+.55,(p[1]-origin[1])*factor+1.1,(p[2]-origin[2])*factor+.1],angle,elevation,width,height);
   // A box stays upright on its base. Rotate it only around the vertical axis,
   // then project the product AND the floor with the same stationary camera.
@@ -228,7 +271,7 @@
   const world=p=>{const x=p[0]-m.width/2,z=p[2]-(m.depth||0)/2;return [m.width/2+x*c-z*s,p[1]+floorY-baseY,(m.depth||0)/2+x*s+z*c];};
   const pr=p=>stagePr(world(p));
   const visible=f=>!f.hardware||f.normal[1]*Math.sin(stagePitch)+(f.normal[0]*Math.sin(yaw)+f.normal[2]*Math.cos(yaw))*Math.cos(stagePitch)>=-.0001;
-  const environment=room(stagePr,width,height,JSON.stringify([width,height,baseFactor,zoom,...center]));
+  const environment=room(stagePr,width,height,JSON.stringify([width,height,baseFactor,zoom,...center])).filter(f=>m.family!=='porta4'||f.surface==='floor').map(f=>m.family==='porta4'?{...f,fill:'#fafbf9',stroke:'#f0f2ee'}:f);
   const primitives=[...environment,...m.faces.filter(visible).map(f=>{const worldPoints=f.points.map(world),screen=worldPoints.map(stagePr);return {...f,worldPoints,kind:'face',screen,depth:screen.reduce((a,p)=>a+p.depth,0)/screen.length};}),...m.lines.map(l=>({...l,kind:'line',screen:[pr(l.a),pr(l.b)],depth:(pr(l.a).depth+pr(l.b).depth)/2+.002}))].sort((a,b)=>Number(!!a.group)-Number(!!b.group)||a.depth-b.depth);
   let shadowDrawn=false;
   for(const v of primitives){

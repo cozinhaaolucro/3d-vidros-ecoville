@@ -17,7 +17,7 @@ function updatePrice(){
  const quote=projectKnown?BoxQuote.resolve(active(),materials):null,g=BoxMaterials.glasses[materials.glass],f=BoxMaterials.finishes[materials.finish];
  ids('price-selection').textContent=(g.description||g.label)+' · '+f.label;
  const contracted=active().contractedSelection,isContracted=!!contracted&&contracted.glass===materials.glass&&contracted.finish===materials.finish;
- const priceLabel=document.querySelector('.price-label > span');if(priceLabel)priceLabel.textContent=contracted?(isContracted?'Valor contratado · quitado':'Valor simulado'):'Valor do box';
+ const priceLabel=document.querySelector('.price-label > span');if(priceLabel)priceLabel.textContent=active().family==='porta4'?'Valor da porta':contracted?(isContracted?'Valor contratado · quitado':'Valor simulado'):'Valor do box';
  const included=document.querySelector('.price-label .included');if(included)included.textContent=contracted&&!isContracted?'Alteração sob confirmação':'Instalação inclusa';
  const validUntil=validity(),expired=!isContracted&&(!validUntil||new Date().toISOString().slice(0,10)>validUntil);
  ids('price-available').hidden=!quote||expired;ids('price-pending').hidden=!!quote&&!expired;
@@ -42,10 +42,11 @@ function draw(){
  const r=canvas.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);
  projected=BoxScene.render(ctx,BoxScene.model(active().family,Number(opening.value)/100,materials,active()),yaw,pitch,r.width,r.height,{zoom});
  ids('zoom-out').disabled=zoom<=1;ids('zoom-in').disabled=zoom>=3.5;
- ids('toggle').textContent=Number(opening.value)>=95?'Fechar box':'Abrir totalmente';
+ ids('toggle').textContent=Number(opening.value)>=95?(active().family==='porta4'?'Fechar porta':'Fechar box'):'Abrir totalmente';
 }
 function updateDescription(){
  const item=active(),f=item.family,g=BoxMaterials.glasses[materials.glass],a=BoxMaterials.finishes[materials.finish];
+ const isDoor=f==='porta4';document.querySelector('.choice-heading h2').textContent=isDoor?'Sua porta, do seu jeito.':'Seu box, do seu jeito.';document.querySelector('header .brand span')?.replaceChildren(document.createTextNode(isDoor?'SUA PORTA EM 3D':'SEU BOX EM 3D'));document.title=isDoor?'Sua porta em 3D · Vidros Ecoville':'Monte seu box · Vidros Ecoville';canvas.setAttribute('aria-label',isDoor?'Porta em 3D. Arraste para girar e use o controle para abrir.':'Box em 3D. Arraste para girar.');opening.setAttribute('aria-label',isDoor?'Abertura da porta':'Abertura do box');
  const dims=[item.width,...(f==='canto'?[item.depth]:[]),item.height].map(n=>Math.round(n*1000)).join(' × ');
  const glassThickness=thickness();
  const note=document.querySelector('main > .small-note');if(note)note.textContent=item.confirmedMeasures?'Medidas confirmadas · cores ilustrativas. Simulações não alteram o pedido contratado.':'Cores ilustrativas · medidas a confirmar no local.';
