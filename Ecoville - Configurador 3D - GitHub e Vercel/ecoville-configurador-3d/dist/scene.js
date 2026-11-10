@@ -36,13 +36,14 @@
   const seal={kind:'solid',color:'#394748',edge:'#273334'},washer={kind:'solid',color:'#727f7b',edge:'#495754'};
   const pull=(x,y,z)=>{
    if(handleType==='flat-bar'){
-    for(const yy of [y-.175,y+.175]){
+    const half=Number.isFinite(config.barLength)&&config.barLength>=.2&&config.barLength<=.8?config.barLength/2:.20,mount=half-.025;
+    for(const yy of [y-mount,y+mount]){
      disc(x,yy,z-.004,z+.001,.014,washer,'handle-gasket');
      bevel(x-.013,yy-.014,z+.001,x+.013,yy+.014,z+.013,.003,finish,'handle-mount');
      bevel(x-.006,yy-.007,z+.013,x+.006,yy+.007,z+.05,.002,finish,'handle-support');
     }
-    bevel(x-.010,y-.20,z+.044,x+.010,y+.20,z+.064,.003,finish,'handle-bar');
-    bevel(x-.008,y-.20,z-.034,x+.008,y+.20,z-.018,.002,finish,'handle-inner');
+    bevel(x-.010,y-half,z+.044,x+.010,y+half,z+.064,.003,finish,'handle-bar');
+    bevel(x-.008,y-half,z-.034,x+.008,y+half,z-.018,.002,finish,'handle-inner');
    }else{
     disc(x,y,z-.004,z+.004,.016,washer,'handle-gasket');
     disc(x,y,z+.004,z+.013,.014,finish,'handle-mount');
