@@ -1,5 +1,5 @@
 'use strict';
-const canvas=document.getElementById('scene'),ctx=canvas.getContext('2d'),family=document.getElementById('family'),opening=document.getElementById('opening');
+const canvas=document.getElementById('scene'),ctx=canvas.getContext('2d'),family=document.getElementById('family'),openingSide=document.getElementById('opening-side'),opening=document.getElementById('opening');
 const projectKey=new URLSearchParams(location.search).get('p')||'t01';
 const projectKnown=Object.hasOwn(DEMO_PROJECTS,projectKey),project=projectKnown?DEMO_PROJECTS[projectKey]:DEMO_PROJECTS.t01;
 family.replaceChildren(...project.items.map((item,i)=>new Option(item.optionLabel||item.label,String(i))));
@@ -40,7 +40,8 @@ function returnHome(){
 function scheduleHome(){cancelHome();if(!hovering&&!drag)idleTimer=setTimeout(returnHome,5000);}
 function draw(){
  const r=canvas.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,r.width,r.height);
- projected=BoxScene.render(ctx,BoxScene.model(active().family,Number(opening.value)/100,materials,active()),yaw,pitch,r.width,r.height,{zoom});
+ const item=active(),config=item.openingSides?{...item,openingSide:openingSide.value}:item;
+ projected=BoxScene.render(ctx,BoxScene.model(item.family,Number(opening.value)/100,materials,config),yaw,pitch,r.width,r.height,{zoom});
  ids('zoom-out').disabled=zoom<=1;ids('zoom-in').disabled=zoom>=3.5;
  ids('toggle').textContent=Number(opening.value)>=95?(active().family==='porta4'?'Fechar porta':'Fechar box'):'Abrir totalmente';
 }
@@ -79,10 +80,12 @@ for(const [group,collection] of [['glass',BoxMaterials.glasses],['finish',BoxMat
 ids('restore-materials').onclick=()=>{materials=BoxMaterials.selection(active().glass||'incolor',active().finish);updateDescription();draw();};
 function changeFamily(){
  cancelHome();cancelAnimationFrame(animation);drag=null;
+ openingSide.hidden=!active().openingSides;openingSide.value='right';
  ids('title').textContent=active().label;materials=BoxMaterials.selection(materials.glass,(active().unavailableFinishes||[]).includes(materials.finish)?active().finish:materials.finish);
  yaw=HOME.yaw;pitch=HOME.pitch;zoom=1;opening.value=HOME.opening;updateDescription();draw();
 }
 opening.addEventListener('input',()=>{cancelAnimationFrame(animation);draw();});family.addEventListener('change',()=>{cancelAnimationFrame(animation);changeFamily();});
+openingSide.addEventListener('change',()=>{cancelAnimationFrame(animation);draw();});
 ids('toggle').onclick=()=>{cancelAnimationFrame(animation);const start=Number(opening.value),end=start>=95?0:100,t0=performance.now();function step(now){const t=Math.min(1,(now-t0)/650);opening.value=Math.round(start+(end-start)*(t*t*(3-2*t)));draw();if(t<1)animation=requestAnimationFrame(step);}if(matchMedia('(prefers-reduced-motion: reduce)').matches){opening.value=end;draw();}else animation=requestAnimationFrame(step);};
 ids('left').onclick=()=>{yaw-=.2;draw();};ids('right').onclick=()=>{yaw+=.2;draw();};ids('reset').onclick=()=>{cancelHome();hovering=false;returnHome();};
 ids('zoom-in').onclick=()=>{zoom=Math.min(3.5,zoom+.5);draw();};ids('zoom-out').onclick=()=>{zoom=Math.max(1,zoom-.5);draw();};

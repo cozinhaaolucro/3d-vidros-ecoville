@@ -172,8 +172,12 @@
    // Duo Safe manual: two mobile leaves, pressure pull profiles, central nylon guide.
    const duo=family==='duo-safe',count=duo?2:3,overlap=.025,span=W/count+overlap;
    const zs=duo?[0,.038]:[0,.035,.070],inset=.065,clear=.016+.008;
-   const travel=duo?Math.max(0,W-span-inset-clear):Math.max(0,W-span-inset-clear);
-   const shift=k*travel,starts=duo?[0,W-span-shift]:[0,(W-span)/2-shift/2,W-span-shift];
+   const bothSides=duo&&config.openingSides,openLeft=bothSides&&config.openingSide==='left';
+   const travel=Math.max(0,W-span-(bothSides?0:inset+clear));
+   const shift=k*travel;
+   const starts=duo
+    ?[openLeft?shift:0,W-span-(openLeft?0:shift)]
+    :[0,(W-span)/2-shift/2,W-span-shift];
    // Each mobile leaf remains inside the frame and on a distinct runner plane.
    starts.forEach((x,i)=>pane([x,zs[i]],[x+span,zs[i]],H));
    bevel(-.014,H-.065,-.026,W+.014,H+.018,duo?.084:.118,.004,finish,duo?'duo-header':'bt3-header');
@@ -194,8 +198,9 @@
     pull(starts[2]+span-inset,H*.47,zs[2]);
     for(const z of [.012,.047,.082])bevel(span-.020,.020,z,span+.020,.040,z+.010,.002,seal,'nylon-guide');
    }
-   motion={travel,shift,starts,span,runnerPlanes:zs,fixedLeaves:duo?0:1,mobileLeaves:2,openingSide:'right',illustrative:true};
-   openingFocus=[duo?starts[1]+span-.018:starts[2]+span-inset,H*.47,zs[zs.length-1]];
+   motion={travel,shift,starts,span,runnerPlanes:zs,fixedLeaves:duo?0:1,mobileLeaves:2,openingSide:openLeft?'left':'right',illustrative:true};
+   const focusX=duo?(openLeft?starts[0]+.018:starts[1]+span-.018):starts[2]+span-inset;
+   openingFocus=[focusX,H*.47,zs[openLeft?0:zs.length-1]];
   }else if(family==='f1'){
    const mid=W/2,travel=maxTravel(W,.065,.025),shift=k*travel;
    motion={travel,shift,fixedEdge:mid+.025,handleMin:W-.065-shift-handleHalfWidth,stopGap};

@@ -11,5 +11,5 @@
 
 .view-tools button:disabled{opacity:.4;cursor:default}.view-tools #zoom-in,.view-tools #zoom-out{font-size:16px;line-height:1;min-width:32px;padding-left:8px;padding-right:8px}
 
-#family{max-width:100%;min-height:32px;margin:7px 0 0;padding:5px 11px;border:1px solid #c6d6ce;border-radius:8px;background:#fff;color:#16454a;font-size:12px;cursor:pointer}
-@media(max-width:760px){#family{min-height:28px;margin-top:5px;padding:3px 8px;font-size:11px}}
+#family,#opening-side{max-width:100%;min-height:32px;margin:7px 0 0;padding:5px 11px;border:1px solid #c6d6ce;border-radius:8px;background:#fff;color:#16454a;font-size:12px;cursor:pointer}#opening-side{margin-left:6px}
+@media(max-width:760px){#family,#opening-side{min-height:28px;margin-top:5px;padding:3px 8px;font-size:11px}}

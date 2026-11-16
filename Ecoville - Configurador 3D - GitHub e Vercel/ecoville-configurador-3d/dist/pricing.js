@@ -16,7 +16,10 @@
 
 // Matriz sem combinação cadastrada permanece sob consulta, sem estimativa por área.
 
-const quotes={"b1611x":{"id":"b1611x","family":"flex","width":0.77,"height":1.9,"heightMode":"standard","bar":false,"thickness":8,"validUntil":"2026-12-06","combinations":{"incolor.preto":{"total":271600},"incolor.branco":{"total":271600}}},
+const quotes={"b1611c-1":{"id":"b1611c-1","family":"abrir","width":0.77,"height":1.9,"heightMode":"standard","bar":false,"thickness":8,"doorWidth":0.33,"hingeCount":2,"validUntil":"2026-12-06","combinations":{"incolor.preto":{"total":79650}}},
+"b1611c-2":{"id":"b1611c-2","family":"duo-safe","width":0.77,"height":1.9,"heightMode":"standard","bar":false,"thickness":8,"validUntil":"2026-12-06","combinations":{"incolor.preto":{"total":193200}}},
+"b1611c-3":{"id":"b1611c-3","family":"bt3","width":0.77,"height":1.9,"heightMode":"standard","bar":false,"thickness":8,"validUntil":"2026-12-06","combinations":{"incolor.preto":{"total":218300}}},
+"b1611x":{"id":"b1611x","family":"flex","width":0.77,"height":1.9,"heightMode":"standard","bar":false,"thickness":8,"validUntil":"2026-12-06","combinations":{"incolor.preto":{"total":271600},"incolor.branco":{"total":271600}}},
 "b1611a":{"id":"b1611a","family":"f1","width":1.2,"height":2.2,"heightMode":"ceiling","bar":true,"thickness":8,"overlap":0.05,"validUntil":"2026-12-06","combinations":{"incolor.branco":{"total":158550},"incolor.preto":{"total":158550}}},
 "b1611k":{"id":"b1611k","family":"f1","width":1.2,"height":1.9,"heightMode":"standard","bar":false,"thickness":8,"overlap":0.05,"validUntil":"2026-12-06","combinations":{"incolor.preto":{"total":98350}}},
 "b1611f":{"id":"b1611f","family":"f1","width":1.32,"height":2.46,"heightMode":"ceiling","bar":true,"thickness":8,"overlap":0.05,"validUntil":"2026-12-06","combinations":{"incolor.branco":{"total":170000},"protetora.branco":{"total":204450}}},
