@@ -17,8 +17,8 @@ function updatePrice(){
  const quote=projectKnown?BoxQuote.resolve(active(),materials):null,g=BoxMaterials.glasses[materials.glass],f=BoxMaterials.finishes[materials.finish];
  ids('price-selection').textContent=(g.description||g.label)+' · '+f.label;
  const contracted=active().contractedSelection,isContracted=!!contracted&&contracted.glass===materials.glass&&contracted.finish===materials.finish;
- const priceLabel=document.querySelector('.price-label > span');if(priceLabel)priceLabel.textContent=active().family==='porta4'?'Valor da porta':contracted?(isContracted?'Valor contratado · quitado':'Valor simulado'):'Valor do box';
- const included=document.querySelector('.price-label .included');if(included)included.textContent=contracted&&!isContracted?'Alteração sob confirmação':'Instalação inclusa';
+ const priceLabel=document.querySelector('.price-label > span');if(priceLabel)priceLabel.textContent=active().family==='porta4'?'Valor da porta':active().measureNote?'Valor de referência':contracted?(isContracted?'Valor contratado · quitado':'Valor simulado'):'Valor do box';
+ const included=document.querySelector('.price-label .included');if(included)included.textContent=active().measureNote?'Adaptações sob consulta':contracted&&!isContracted?'Alteração sob confirmação':'Instalação inclusa';
  const validUntil=validity(),expired=!isContracted&&(!validUntil||new Date().toISOString().slice(0,10)>validUntil);
  ids('price-available').hidden=!quote||expired;ids('price-pending').hidden=!!quote&&!expired;
  if(!quote||expired){for(const id of ['cash-price'])ids(id).textContent='';return;}
@@ -50,7 +50,7 @@ function updateDescription(){
  const isDoor=f==='porta4';document.querySelector('.choice-heading h2').textContent=isDoor?'Sua porta, do seu jeito.':'Seu box, do seu jeito.';document.querySelector('header .brand span')?.replaceChildren(document.createTextNode(isDoor?'SUA PORTA EM 3D':'SEU BOX EM 3D'));document.title=isDoor?'Sua porta em 3D · Vidros Ecoville':'Monte seu box · Vidros Ecoville';canvas.setAttribute('aria-label',isDoor?'Porta em 3D. Arraste para girar e use o controle para abrir.':'Box em 3D. Arraste para girar.');opening.setAttribute('aria-label',isDoor?'Abertura da porta':'Abertura do box');
  const dims=[item.width,...(f==='canto'?[item.depth]:[]),item.height].map(n=>Math.round(n*1000)).join(' × ');
  const glassThickness=thickness();
- const note=document.querySelector('main > .small-note');if(note)note.textContent=item.confirmedMeasures?'Medidas confirmadas · cores ilustrativas. Simulações não alteram o pedido contratado.':'Cores ilustrativas · medidas a confirmar no local.';
+ const note=document.querySelector('main > .small-note');if(note)note.textContent=item.measureNote|| (item.confirmedMeasures?'Medidas confirmadas · cores ilustrativas. Simulações não alteram o pedido contratado.':'Cores ilustrativas · medidas a confirmar no local.');
  ids('spec').textContent=dims+' mm · '+(g.description||g.label)+(glassThickness?' · '+glassThickness+' mm':'')+' · '+a.label;
  ids('selected-materials').textContent=(g.description||g.label)+' · '+a.label;
  ids('glass-detail').textContent=g.kind==='mirror'?'Incolor com película espelhada. A reflexão e a transparência mudam conforme a iluminação dos dois lados.':g.kind==='frosted'?'Incolor com película jateada. Aparência fosca e difusão de luz; os detalhes através do vidro ficam suavizados.':'Vidro '+g.label.toLowerCase()+'. A tonalidade varia com a espessura, a luz e o ambiente.';
